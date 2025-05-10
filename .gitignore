@@ -1,0 +1,108 @@
+# 設定ファイル
+config.py
+*.config
+*.conf
+*.yaml
+*.yml
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!jest.config.js
+
+# ドキュメントディレクトリ
+documents/
+
+# Python関連
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 仮想環境
+venv/
+ENV/
+.env/
+.venv/
+.venv
+env/
+
+# IDE関連
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# その他
+.DS_Store
+*.log
+logs/
+node_modules/
+*.bak
+*.tmp
+*.temp
+*.png
+
+# Local configuration
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Database
+*.db
+*.sqlite3
+*.sqlite
+
+# ChromaDB
+chroma/
+.chroma/
+memory-bank/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# システムファイル
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ビルド出力
+dist/
+build/
+*.tsbuildinfo
+
+# テスト関連
+coverage/
+.nyc_output/
+
+# キャッシュ
+.cache/
+.npm/
+.eslintcache
