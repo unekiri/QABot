@@ -38,7 +38,6 @@ docker compose up -d
 以下のサービスが起動します：
 - APIサーバー (http://localhost:5000)
 - ChromaDB (http://localhost:8000)
-- Playwright MCP (http://localhost:3000)
 - Nginx (http://localhost:8080)
 
 ## 使用方法
@@ -72,7 +71,6 @@ APIは以下のエンドポイントを提供します：
 |----------|------|--------|----------|
 | api | FastAPIアプリケーション | 5000 | カスタムビルド |
 | chroma | ベクトルデータベース | 8000 | chromadb/chroma:latest |
-| playwright-mcp | Playwright MCPサーバー | 3000 | mcr.microsoft.com/playwright/mcp |
 | nginx | リバースプロキシ | 8080 | nginx:latest |
 
 ## プロジェクト構造
