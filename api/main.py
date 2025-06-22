@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import chromadb
-from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain_community.llms import Ollama
+from sentence_transformers import SentenceTransformer
+import ollama
 from config import (
     API_HOST,
     API_PORT,
@@ -42,16 +42,13 @@ client = chromadb.HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
 collection = client.get_or_create_collection(COLLECTION_NAME)
 
 # 埋め込みモデルの初期化
-embeddings = SentenceTransformerEmbeddings(model_name=EMBEDDING_MODEL)
-
-# LLMの初期化
-llm = Ollama(model=LLM_MODEL)
+embeddings = SentenceTransformer(EMBEDDING_MODEL)
 
 @app.post("/api/ask", response_model=AnswerResponse)
 async def ask_question(request: QuestionRequest):
     try:
         # 質問の埋め込みを生成
-        question_embedding = embeddings.embed_query(request.question)
+        question_embedding = embeddings.encode(request.question).tolist()
         
         # ChromaDBから関連ドキュメントを検索
         results = collection.query(
@@ -75,7 +72,8 @@ async def ask_question(request: QuestionRequest):
 回答:"""
         
         # LLMにプロンプトを送信
-        answer = llm.invoke(prompt)
+        response = ollama.generate(model=LLM_MODEL, prompt=prompt)
+        answer = response['response']
         
         return AnswerResponse(
             answer=answer,

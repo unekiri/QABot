@@ -106,3 +106,9 @@ coverage/
 .cache/
 .npm/
 .eslintcache
+
+# Claude ignoreファイル
+*CLAUDE.md
+
+# Docker ignoreファイル
+*.dockerignore
