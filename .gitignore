@@ -1,5 +1,6 @@
 # 設定ファイル
 config.py
+!config.py.template
 *.config
 *.conf
 *.yaml
@@ -112,3 +113,59 @@ coverage/
 
 # Docker ignoreファイル
 *.dockerignore
+
+# セキュリティ関連ファイル
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+*.p7b
+*.p7c
+*.p7r
+*.secrets
+*_rsa*
+*_dsa*
+*_ecdsa*
+*_ed25519*
+secrets/
+.secrets/
+*.token
+*.tokens
+api_keys/
+.api_keys/
+
+# テスト・開発ファイル（一時的）
+connection_test.py
+simple_test.py
+test_*.py
+*_test_*.py
+
+# データベースデータ
+*.sqlite
+*.sqlite3
+*.db
+data/
+database/
+
+# 機械学習モデル
+*.model
+*.pkl
+*.pickle
+models/
+checkpoints/
+
+# ログファイル
+*.log
+logs/
+debug.log
+error.log
+
+# 設定ファイル（追加）
+.htaccess
+.htpasswd
+nginx.conf
+*.ini
+settings.py
+local_settings.py
