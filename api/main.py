@@ -13,6 +13,8 @@ from config import (
     COLLECTION_NAME,
     EMBEDDING_MODEL,
     LLM_MODEL,
+    OLLAMA_HOST,
+    OLLAMA_PORT,
     CHUNK_SIZE,
     CHUNK_OVERLAP
 )
@@ -44,6 +46,14 @@ collection = client.get_or_create_collection(COLLECTION_NAME)
 # 埋め込みモデルの初期化
 embeddings = SentenceTransformer(EMBEDDING_MODEL)
 
+# Ollamaクライアントの初期化
+ollama_client = ollama.Client(host=f"http://{OLLAMA_HOST}:{OLLAMA_PORT}")
+
+@app.get("/health")
+async def health():
+    """ヘルスチェックエンドポイント"""
+    return {"status": "healthy"}
+
 @app.post("/api/ask", response_model=AnswerResponse)
 async def ask_question(request: QuestionRequest):
     try:
@@ -72,7 +82,7 @@ async def ask_question(request: QuestionRequest):
 回答:"""
         
         # LLMにプロンプトを送信
-        response = ollama.generate(model=LLM_MODEL, prompt=prompt)
+        response = ollama_client.generate(model=LLM_MODEL, prompt=prompt)
         answer = response['response']
         
         return AnswerResponse(
