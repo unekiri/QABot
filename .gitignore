@@ -141,6 +141,10 @@ connection_test.py
 simple_test.py
 test_*.py
 *_test_*.py
+api_client_test.py
+client_test.html
+final_integration_test.py
+integration_test.py
 
 # データベースデータ
 *.sqlite
