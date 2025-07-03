@@ -37,7 +37,7 @@ const App: React.FC = () => {
 
     try {
       // バックエンドに質問を送信
-      const response = await axios.post('http://host.docker.internal:5000/api/ask', {
+      const response = await axios.post('/api/ask', {
         question: question
       });
 
