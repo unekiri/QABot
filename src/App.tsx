@@ -6,24 +6,23 @@ import {
   Box, 
   Typography, 
   Paper,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemText
-} from '@mui/material';
+  CircularProgress} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import axios from 'axios';
 
 interface Message {
   text: string;
   isUser: boolean;
-  sources?: string[];
 }
 
 const App: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,15 +36,14 @@ const App: React.FC = () => {
 
     try {
       // バックエンドに質問を送信
-      const response = await axios.post('/api/ask', {
+      const response = await axios.post(`${API_BASE_URL}${API_ENDPOINT}`, {
         question: question
       });
 
       // 回答をメッセージに追加
       const botMessage: Message = { 
         text: response.data.answer,
-        isUser: false,
-        sources: response.data.sources
+        isUser: false,        
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -63,7 +61,7 @@ const App: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
-        検索チャット
+        QAbot
       </Typography>
       
       <Paper 
@@ -95,23 +93,6 @@ const App: React.FC = () => {
               }}
             >
               <Typography>{message.text}</Typography>
-              {!message.isUser && message.sources && message.sources.length > 0 && (
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    参考資料:
-                  </Typography>
-                  <List dense>
-                    {message.sources.map((source, idx) => (
-                      <ListItem key={idx}>
-                        <ListItemText
-                          primary={source}
-                          primaryTypographyProps={{ variant: 'body2' }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              )}
             </Paper>
           </Box>
         ))}
