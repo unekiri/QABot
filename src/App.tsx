@@ -40,6 +40,8 @@ const App: React.FC = () => {
         question: question
       });
 
+      console.log('response', response.data)
+
       // 回答をメッセージに追加
       const botMessage: Message = { 
         text: response.data.answer,

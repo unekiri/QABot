@@ -74,12 +74,9 @@ async def ask_question(request: QuestionRequest):
         context = "\n\n".join(relevant_docs)
         prompt = f"""以下のコンテキストに基づいて、ユーザーの質問に答えてください。
 
-コンテキスト:
-{context}
-
+コンテキスト: {context}
 ユーザーの質問: {request.question}
 
-回答:"""
         
         # LLMにプロンプトを送信
         response = ollama_client.generate(model=LLM_MODEL, prompt=prompt)
