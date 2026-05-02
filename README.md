@@ -3,4 +3,5 @@
 ドキュメントを学習し、質問に回答するチャットボットシステム
 
 ## システム構成図
-![image](https://github.com/user-attachments/assets/e25d893c-2d9f-41df-9bcb-ce148c33e02f)
+<img width="718" height="411" alt="image" src="https://github.com/user-attachments/assets/8c37c4a0-70ae-4784-b6da-5184b36d7bd3" />
+
