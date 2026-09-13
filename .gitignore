@@ -173,3 +173,9 @@ nginx.conf
 *.ini
 settings.py
 local_settings.py
+
+# Runtime構成は製品の一部として管理
+!docker-compose.yml
+!nginx/nginx.conf
+!nginx/conf.d/default.conf
+!tests/integration.compose.yml

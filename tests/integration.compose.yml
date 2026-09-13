@@ -1,0 +1,40 @@
+services:
+  chroma:
+    image: chromadb/chroma:0.5.23
+    environment:
+      ANONYMIZED_TELEMETRY: 'False'
+  api:
+    image: qabot-api:latest
+    environment:
+      CHROMA_HOST: chroma
+      COLLECTION_NAME: integration_docs
+      OLLAMA_HOST: host.docker.internal
+      PYTHONDONTWRITEBYTECODE: '1'
+    volumes:
+      - ./:/tests:ro
+  nginx:
+    build:
+      context: ../nginx
+    environment:
+      QABOT_AUTH_USER: integration
+    secrets:
+      - qabot_auth_password
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../build:/usr/share/nginx/html:ro
+    ports:
+      - '127.0.0.1:18080:80'
+  importer:
+    image: qabot-importer:latest
+    environment:
+      CHROMA_HOST: chroma
+      COLLECTION_NAME: integration_docs
+      PYTHONDONTWRITEBYTECODE: '1'
+    volumes:
+      - ./:/tests:ro
+    tmpfs:
+      - /app/logs:mode=1777
+    entrypoint: ['python', '/tests/integration_importer.py']
+secrets:
+  qabot_auth_password:
+    file: ./fixtures/auth_password.txt
