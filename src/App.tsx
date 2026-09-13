@@ -13,6 +13,22 @@ import axios from 'axios';
 interface Message {
   text: string;
   isUser: boolean;
+  evidence?: Evidence[];
+  abstained?: boolean;
+}
+
+interface Evidence {
+  id: string;
+  source: string;
+  excerpt: string;
+  page?: string | number | null;
+}
+
+interface AnswerResponse {
+  answer: string;
+  sources: string[];
+  evidence: Evidence[];
+  abstained: boolean;
 }
 
 const App: React.FC = () => {
@@ -20,8 +36,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-  const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT
+  const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT || '/api/ask';
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,16 +51,16 @@ const App: React.FC = () => {
 
     try {
       // バックエンドに質問を送信
-      const response = await axios.post(`${API_BASE_URL}${API_ENDPOINT}`, {
+      const response = await axios.post<AnswerResponse>(API_ENDPOINT, {
         question: question
       });
-
-      console.log('response', response.data)
 
       // 回答をメッセージに追加
       const botMessage: Message = { 
         text: response.data.answer,
-        isUser: false,        
+        isUser: false,
+        evidence: response.data.evidence,
+        abstained: response.data.abstained,
       };
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
@@ -94,7 +109,18 @@ const App: React.FC = () => {
                 backgroundColor: message.isUser ? '#e3f2fd' : '#f5f5f5',
               }}
             >
-              <Typography>{message.text}</Typography>
+              {message.abstained ? <Typography color="text.secondary">回答保留</Typography> : null}
+              <Typography sx={{ whiteSpace: 'pre-wrap' }}>{message.text}</Typography>
+              {message.evidence?.map(item => (
+                <Box component="details" key={item.id} sx={{ mt: 1 }}>
+                  <Box component="summary" sx={{ cursor: 'pointer', overflowWrap: 'anywhere' }}>
+                    参照資料: {item.source}{item.page != null ? ` / ページ ${item.page}` : ''}
+                  </Box>
+                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', mt: 1, overflowWrap: 'anywhere' }}>
+                    {item.excerpt}
+                  </Typography>
+                </Box>
+              ))}
             </Paper>
           </Box>
         ))}
@@ -130,4 +156,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App; 
+export default App;

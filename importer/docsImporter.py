@@ -1,6 +1,7 @@
-import shutil
+from collections import defaultdict
+from indexing import index_document
 import chromadb
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import (
      DirectoryLoader,
      UnstructuredFileLoader,
@@ -43,29 +44,21 @@ def main():
         
         # ドキュメントの追加
         print("📥 ドキュメントをデータベースに追加しています...")
-        collection.add(
-            ids=[f"doc{i}" for i in range(len(docs))],
-            documents=[d.page_content for d in docs],
-            embeddings=emb.embed_documents([d.page_content for d in docs]),
-            metadatas=[{"source": d.metadata.get("source", "")} for d in docs],
-        )
-        
-        print(f"✅ {collection.count()} 個のチャンクが埋め込まれました。")
-
-        # 処理済みファイルをLogsフォルダに移動
-        print("📂 処理済みファイルをLogsフォルダに移動しています...")
+        grouped = defaultdict(list)
+        for doc in docs:
+            source = doc.metadata.get('source')
+            if not source:
+                raise ValueError('Document source is missing')
+            grouped[source].append(doc)
         logs_dir = Path(__file__).parent / "logs"
-        logs_dir.mkdir(exist_ok=True)  # Logsフォルダが存在しない場合は作成
-
-        for doc in raw_docs:
-            source_path = Path(doc.metadata.get("source", ""))
-            if source_path.exists():
-                dest_path = logs_dir / source_path.name
-                shutil.move(str(source_path), str(dest_path))
-                print(f"  ✓ {source_path.name} を移動しました")
+        for source, chunks in grouped.items():
+            count = index_document(collection, emb.embed_documents, chunks,
+                                   source, DOC_DIR, logs_dir)
+            print(f"✅ {source}: {count} 個のチャンクを登録・照合しました。")
         
     except Exception as e:
         print(f"❌ エラーが発生しました: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    main() 
+    main()
