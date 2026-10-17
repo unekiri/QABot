@@ -1,5 +1,4 @@
 import json
-import math
 import re
 
 NO_EVIDENCE = '資料から十分な根拠を確認できないため、回答を保留します。'
@@ -40,33 +39,6 @@ def parse_answer(raw, evidence):
     if ABSTENTION_PATTERN.search(result['answer']):
         return NO_EVIDENCE, True
     return result['answer'].strip(), False
-
-
-def select_evidence(results, question_embedding, minimum_relevance):
-    if not 0 <= minimum_relevance <= 1:
-        raise ValueError('MIN_RELEVANCE must be between 0 and 1')
-    evidence = []
-    question_norm = math.sqrt(sum(value * value for value in question_embedding))
-    for chunk_id, document, metadata, vector in zip(
-        results['ids'][0], results['documents'][0],
-        results['metadatas'][0], results['embeddings'][0],
-    ):
-        if not document or vector is None or len(vector) != len(question_embedding):
-            continue
-        denominator = question_norm * math.sqrt(sum(value * value for value in vector))
-        if not denominator:
-            continue
-        score = sum(a * b for a, b in zip(question_embedding, vector)) / denominator
-        if not math.isfinite(score) or score < minimum_relevance:
-            continue
-        metadata = metadata or {}
-        evidence.append({
-            'id': chunk_id,
-            'source': metadata.get('source') or '出典不明',
-            'excerpt': document,
-            'page': metadata.get('page'),
-        })
-    return evidence
 
 
 def create_prompt(question, evidence):

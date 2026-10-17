@@ -23,3 +23,13 @@ OLLAMA_PORT = int(os.getenv("OLLAMA_PORT", "11434"))
 # チャンク設定
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
+
+# 検索設定
+# 意味検索で根拠として採用する類似度の下限(0〜1)
+MIN_RELEVANCE = float(os.getenv("MIN_RELEVANCE", "0.8"))
+# ベクトル検索・キーワード検索それぞれで取得する候補数
+SEARCH_CANDIDATES = int(os.getenv("SEARCH_CANDIDATES", "20"))
+# LLMに渡す根拠チャンクの最大数
+TOP_K = int(os.getenv("TOP_K", "3"))
+# 質問に品番等のコードがある場合、そのコードを含むチャンクだけを根拠にする
+CODE_FILTER = os.getenv("CODE_FILTER", "true").lower() != "false"
