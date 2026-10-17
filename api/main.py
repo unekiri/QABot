@@ -7,7 +7,8 @@ from sentence_transformers import SentenceTransformer
 import ollama
 import os
 import logging
-from rag import select_evidence, create_prompt, parse_answer, ANSWER_SCHEMA, NO_EVIDENCE
+from rag import create_prompt, parse_answer, ANSWER_SCHEMA, NO_EVIDENCE
+from search import KeywordIndexCache, select_hybrid_evidence
 from config import (
     API_HOST,
     API_PORT,
@@ -55,6 +56,14 @@ collection = client.get_or_create_collection(COLLECTION_NAME)
 # 埋め込みモデルの初期化
 embeddings = SentenceTransformer(EMBEDDING_MODEL)
 
+# キーワード検索(BM25)索引。ChromaDBの内容が変わった時だけ作り直す
+keyword_indexes = KeywordIndexCache()
+
+
+def fetch_embeddings(ids):
+    stored = collection.get(ids=ids, include=['embeddings'])
+    return dict(zip(stored['ids'], stored['embeddings']))
+
 # Ollamaクライアントの初期化
 ollama_client = ollama.Client(host=f"http://{OLLAMA_HOST}:{OLLAMA_PORT}")
 
@@ -72,17 +81,22 @@ async def ask_question(request: QuestionRequest):
         # 質問の埋め込みを生成
         question_embedding = embeddings.encode(request.question).tolist()
         
-        # ChromaDBから関連ドキュメントを検索
+        candidates = max(1, int(os.getenv('SEARCH_CANDIDATES', '20')))
+        # ChromaDBから意味の近いチャンクを検索
         results = collection.query(
             query_embeddings=[question_embedding],
-            n_results=min(3, document_count),
+            n_results=min(candidates, document_count),
             include=['documents', 'metadatas', 'embeddings']
         )
-        
-        # 検索結果から関連ドキュメントを取得
-        evidence = select_evidence(
-            results, question_embedding,
+
+        # キーワード検索と統合し、根拠として使えるチャンクを選ぶ
+        evidence = select_hybrid_evidence(
+            request.question, question_embedding, results,
+            keyword_indexes.get(collection), fetch_embeddings,
             float(os.getenv('MIN_RELEVANCE', '0.8')),
+            top_k=max(1, int(os.getenv('TOP_K', '3'))),
+            candidates=candidates,
+            code_filter=os.getenv('CODE_FILTER', 'true').lower() != 'false',
         )
         if not evidence:
             return AnswerResponse(answer=NO_EVIDENCE, sources=[], evidence=[], abstained=True)
